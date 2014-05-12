@@ -2,6 +2,43 @@
 
 LSStatusBarItem* sbItem = nil;
 
+%hook SpringBoard
+
+- (void)applicationDidFinishLaunching:(id)arg1 {
+	%orig;
+	sbItem = [[NSClassFromString(@"LSStatusBarItem") alloc] initWithIdentifier:@"com.sassoty.bulb" alignment:StatusBarAlignmentRight];
+	sbItem.imageName = @"Bulb";
+	sbItem.visible = NO;
+}
+
+%end
+
+%hook AVFlashlight
+
+- (BOOL)setFlashlightLevel:(float)state withError:(id *)arg2 {
+	if(state>0.0) {
+		sbItem.visible = YES;
+	} else {
+		sbItem.visible = NO;
+	}
+	return %orig;
+}
+
+%end
+
+%hook SBCCQuickLaunchSectionController
+
+- (void)_enableTorch:(BOOL)state {
+	%orig;
+	if(state) {
+		sbItem.visible = YES;
+	} else {
+		sbItem.visible = NO;
+	}
+}
+
+%end
+
 %hook AVCaptureDevice
 
 - (void)setTorchMode:(BOOL)state {
@@ -22,13 +59,22 @@ LSStatusBarItem* sbItem = nil;
 	}
 }
 
+- (BOOL)setTorchModeOnWithLevel:(float)torchLevel error:(NSError **)outError {
+	sbItem.visible = YES;
+	return %orig;
+}
+
 %end
 
-void createImage() {
-	sbItem = [[NSClassFromString(@"LSStatusBarItem") alloc] initWithIdentifier:@"com.sassoty.bulb" alignment:StatusBarAlignmentRight];
-	sbItem.imageName = @"Bulb";
+%hook AXVisualAlertSBCCQuickLaunchSectionController
+
+- (void)setFlashlightOn:(BOOL)state {
+	%orig;
+	if(state) {
+		sbItem.visible = YES;
+	} else {
+		sbItem.visible = NO;
+	}
 }
 
-%ctor {
-	createImage();
-}
+%end
