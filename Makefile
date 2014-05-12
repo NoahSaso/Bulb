@@ -1,3 +1,5 @@
+export ARCHS = arm64 armv7 armv7s
+
 include theos/makefiles/common.mk
 
 TWEAK_NAME = Bulb
