@@ -16,12 +16,17 @@ LSStatusBarItem* sbItem = nil;
 %hook AVFlashlight
 
 - (BOOL)setFlashlightLevel:(float)state withError:(id *)arg2 {
-	if(state>0.0) {
+	if(state > 0.0) {
 		sbItem.visible = YES;
 	} else {
 		sbItem.visible = NO;
 	}
 	return %orig;
+}
+
+- (void)turnPowerOff {
+	%orig;
+	sbItem.visible = NO;
 }
 
 %end
